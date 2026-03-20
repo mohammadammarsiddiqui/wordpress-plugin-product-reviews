@@ -1,24 +1,437 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <style>.box {
-    padding: 20px;
-    border: 1px solid;
-    width: 25%;
-}</style>
-    </head>
-    <div class="box">
-        <h1>Review Title</h1>
-        <p>Review Text</p>
-        <p>positive</p>
-        <div class="star-rating">
-        <span class="fa fa-star checked"></span>
-        <span class="fa fa-star checked"></span>
-        <span class="fa fa-star checked"></span>
-        <span class="fa fa-star"></span>
-        <span class="fa fa-star"></span>
-        </div>
-        <button>Mark as Helpful</button>
-        <p>0 people found this helpful</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Review Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f7f3ee;
+    --ink: #1a1612;
+    --ink-soft: #4a3f35;
+    --accent: #c8501a;
+    --gold: #d4a843;
+    --positive: #2d6a4f;
+    --positive-bg: #d8f3dc;
+    --negative: #9b2335;
+    --negative-bg: #fde8eb;
+    --neutral: #5a5a5a;
+    --neutral-bg: #ebebeb;
+    --border: #ddd5c8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: var(--cream);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(200,80,26,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(212,168,67,0.08) 0%, transparent 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-width: 540px;
+    width: 100%;
+    box-shadow:
+      0 1px 2px rgba(26,22,18,0.04),
+      0 8px 32px rgba(26,22,18,0.08),
+      6px 6px 0 var(--ink);
+    overflow: hidden;
+    animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header bar */
+  .card-header {
+    background: var(--ink);
+    padding: 0.6rem 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .card-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(247,243,238,0.5);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge-positive { background: var(--positive-bg); color: var(--positive); }
+  .badge-negative { background: var(--negative-bg); color: var(--negative); }
+  .badge-neutral  { background: var(--neutral-bg);  color: var(--neutral);  }
+
+  /* Body */
+  .card-body {
+    padding: 1.75rem 1.75rem 0;
+  }
+
+  /* Stars */
+  .stars {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 1rem;
+  }
+
+  .star {
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+  }
+
+  .star.filled { color: var(--gold); }
+  .star.empty  { color: #ddd5c8; }
+
+  /* Title */
+  .review-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 4vw, 1.55rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 0.85rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), var(--border), transparent);
+    margin-bottom: 1rem;
+  }
+
+  /* Body text */
+  .review-body {
+    font-size: 0.925rem;
+    font-weight: 300;
+    color: var(--ink-soft);
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Meta row */
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .meta-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .reviewer-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .review-date {
+    font-size: 0.73rem;
+    color: #999;
+    margin-top: 1px;
+  }
+
+  .verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--positive);
+    background: var(--positive-bg);
+    padding: 3px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  /* Footer */
+  .card-footer {
+    padding: 1rem 1.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .helpful-count {
+    font-size: 0.78rem;
+    color: #999;
+    font-weight: 300;
+  }
+
+  .helpful-count strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Button */
+  .btn-helpful {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 0.5rem 1.1rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.1s ease, box-shadow 0.18s ease;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .btn-helpful svg {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .btn-helpful:hover {
+    background: var(--ink);
+    color: var(--cream);
+    box-shadow: 3px 3px 0 var(--accent);
+  }
+
+  .btn-helpful:hover svg { transform: translateY(-1px) scale(1.1); }
+
+  .btn-helpful:active { transform: scale(0.97); }
+
+  .btn-helpful.clicked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transform: scale(0);
+    animation: ripple 0.4s ease-out;
+    pointer-events: none;
+  }
+
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Count bump animation */
+  @keyframes bump {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.3); color: var(--accent); }
+    100% { transform: scale(1); }
+  }
+
+  .bump { animation: bump 0.35s ease; }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    .card-footer { flex-direction: column; align-items: flex-start; }
+    .btn-helpful { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<article class="card" role="article" aria-label="Product Review">
+
+  <div class="card-header">
+    <span class="card-label">Customer Review</span>
+    <span class="badge badge-positive" id="sentimentBadge" aria-label="Sentiment: Positive">Positive</span>
+  </div>
+
+  <div class="card-body">
+
+    <div class="stars" id="starsContainer" aria-label="Rating: 4 out of 5 stars"></div>
+
+    <h2 class="review-title" id="reviewTitle">
+      Genuinely the best purchase I've made this year
+    </h2>
+
+    <div class="divider"></div>
+
+    <p class="review-body" id="reviewBody">
+      I was skeptical at first — the price point seemed ambitious for what's marketed as an everyday item. Three months in, and I can honestly say it's exceeded every expectation. Build quality is exceptional, the ergonomics feel considered rather than accidental, and it's held up through daily use without a single complaint. Would recommend without hesitation to anyone on the fence.
+    </p>
+
+    <div class="meta-row">
+      <div class="avatar" aria-hidden="true">JS</div>
+      <div class="meta-text">
+        <div class="reviewer-name">Jordan S.</div>
+        <div class="review-date">March 12, 2026</div>
+      </div>
+      <span class="verified">✓ Verified Purchase</span>
     </div>
+
+  </div>
+
+  <div class="card-footer">
+    <p class="helpful-count" id="helpfulText">
+      <strong id="helpfulCount">12</strong> people found this helpful
+    </p>
+    <button class="btn-helpful" id="helpfulBtn" aria-label="Mark this review as helpful">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+      </svg>
+      Mark as Helpful
+    </button>
+  </div>
+
+</article>
+
+<script>
+  // --- Data ---
+  const reviewData = {
+    rating: 4,
+    maxRating: 5,
+    sentiment: 'positive', // 'positive' | 'negative' | 'neutral'
+    helpfulCount: 12
+  };
+
+  // --- Stars ---
+  (function renderStars() {
+    const container = document.getElementById('starsContainer');
+    for (let i = 1; i <= reviewData.maxRating; i++) {
+      const star = document.createElement('span');
+      star.className = 'star ' + (i <= reviewData.rating ? 'filled' : 'empty');
+      star.textContent = '★';
+      star.setAttribute('aria-hidden', 'true');
+      container.appendChild(star);
+    }
+    container.setAttribute('aria-label', `Rating: ${reviewData.rating} out of ${reviewData.maxRating} stars`);
+  })();
+
+  // --- Sentiment badge ---
+  (function renderBadge() {
+    const badge = document.getElementById('sentimentBadge');
+    const map = {
+      positive: { cls: 'badge-positive', label: 'Positive' },
+      negative: { cls: 'badge-negative', label: 'Negative' },
+      neutral:  { cls: 'badge-neutral',  label: 'Neutral'  }
+    };
+    const s = map[reviewData.sentiment] || map.neutral;
+    badge.className = `badge ${s.cls}`;
+    badge.textContent = s.label;
+    badge.setAttribute('aria-label', `Sentiment: ${s.label}`);
+  })();
+
+  // --- Helpful button ---
+  const btn   = document.getElementById('helpfulBtn');
+  const count = document.getElementById('helpfulCount');
+  let helpful = reviewData.helpfulCount;
+  let voted   = false;
+
+  btn.addEventListener('click', function(e) {
+    if (voted) return;
+    voted = true;
+    helpful++;
+
+    // Ripple
+    const rect = btn.getBoundingClientRect();
+    const rpl  = document.createElement('span');
+    rpl.className = 'ripple';
+    const size = Math.max(btn.clientWidth, btn.clientHeight);
+    rpl.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    btn.appendChild(rpl);
+    rpl.addEventListener('animationend', () => rpl.remove());
+
+    // Update count with animation
+    count.textContent = helpful;
+    count.classList.remove('bump');
+    void count.offsetWidth; // reflow
+    count.classList.add('bump');
+    count.addEventListener('animationend', () => count.classList.remove('bump'), { once: true });
+
+    btn.classList.add('clicked');
+    btn.textContent = '';
+
+    // Rebuild button content (checked icon + new label)
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2.5');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.cssText = 'width:13px;height:13px;flex-shrink:0';
+    svg.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+    btn.appendChild(svg);
+    btn.appendChild(document.createTextNode(' Helpful!'));
+
+    btn.setAttribute('aria-label', 'You marked this review as helpful');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.disabled = true;
+    btn.style.cursor = 'default';
+  });
+</script>
+</body>
 </html>
